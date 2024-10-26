@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    @media (prefers-color-scheme: light) {
+        :root {
+            --color-foreground: 222 235 243;
+            --color-background: 8 9 23;
+            --color-primary: 146 192 216;
+            --color-secondary: 45 51 126;
+            --color-accent: 110 97 198;
+        }
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --color-foreground: 222 235 243;
+            --color-background: 8 9 23;
+            --color-primary: 146 192 216;
+            --color-secondary: 45 51 126;
+            --color-accent: 110 97 198;
+        }
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        background: #e8f3f7;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        background: #081317;
+    }
+}
