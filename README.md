@@ -4,5 +4,5 @@ npm run dev
 ```
 
 ```
-npm run deploy
+bun run deploy
 ```
