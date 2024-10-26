@@ -33,6 +33,7 @@ export default function App() {
             <Dashboard/>
           } 
         />
+        <Route path="locality" element={<Locality/>} />
         <Route path="/addProduct" element={<AddProduct/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/profile" element={<h1>Profile Page</h1>} />
