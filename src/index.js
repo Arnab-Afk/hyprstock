@@ -222,7 +222,128 @@ app.post('/api/products', jwtMiddleware, async (c) => {
       quantity_in_stock || 0, // Default to 0 if not provided
       userId,
     ]);
+        // Route: Get All Users with Their Inventories
+    app.get('/api/users/all', async (c) => {
+      try {
+        // Get query parameters for filtering and pagination
+        const role = c.req.query('role'); // Optional role filter
+        const limit = parseInt(c.req.query('limit')) || 10;
+        const offset = parseInt(c.req.query('offset')) || 0;
+        
+        // Base query for counting total users
+        let countQuery = `
+          SELECT COUNT(DISTINCT u.user_id) as total
+          FROM users u
+          LEFT JOIN products p ON u.user_id = p.user_id
+          WHERE 1=1
+        `;
 
+        // Base query for fetching users and their products
+        let query = `
+          SELECT 
+            u.user_id,
+            u.username,
+            u.email,
+            u.role,
+            u.created_at as user_created_at,
+            COUNT(p.product_id) as total_products,
+            SUM(p.quantity_in_stock) as total_inventory,
+            SUM(p.quantity_after_sale) as total_after_sale,
+            SUM(p.price * p.quantity_in_stock) as inventory_value,
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'product_id', p.product_id,
+                'product_name', p.product_name,
+                'price', p.price,
+                'quantity_in_stock', p.quantity_in_stock,
+                'quantity_after_sale', p.quantity_after_sale,
+                'category_id', p.category_id,
+                'created_at', p.created_at,
+                'updated_at', p.updated_at
+              )
+            ) as products
+          FROM users u
+          LEFT JOIN products p ON u.user_id = p.user_id
+          WHERE 1=1
+        `;
+
+        const queryParams = [];
+
+        // Add role filter if provided
+        if (role) {
+          countQuery += ` AND u.role = ?`;
+          query += ` AND u.role = ?`;
+          queryParams.push(role);
+        }
+
+        // Group by user
+        query += `
+          GROUP BY u.user_id, u.username, u.email, u.role, u.created_at
+          ORDER BY u.created_at DESC
+          LIMIT ? OFFSET ?
+        `;
+        queryParams.push(limit, offset);
+
+        // Execute queries
+        const countResult = await executeQuery(c, countQuery, queryParams.slice(0, -2));
+        const totalUsers = countResult.results[0].total;
+
+        const result = await executeQuery(c, query, queryParams);
+
+        // Process and format the results
+        const users = result.results.map(user => ({
+          user_id: user.user_id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          created_at: user.user_created_at,
+          inventory_summary: {
+            total_products: user.total_products,
+            total_inventory: user.total_inventory,
+            total_after_sale: user.total_after_sale,
+            inventory_value: parseFloat(user.inventory_value || 0).toFixed(2),
+            average_product_value: user.total_products ? 
+              (user.inventory_value / user.total_products).toFixed(2) : 0,
+            inventory_status: user.total_inventory > 0 ? 'active' : 'empty'
+          },
+          products: user.products && user.products !== '[null]' ? 
+            JSON.parse(user.products).filter(p => p.product_id !== null) : []
+        }));
+
+        // Calculate some overall statistics
+        const statistics = users.reduce((stats, user) => {
+          stats.total_inventory_value += parseFloat(user.inventory_summary.inventory_value);
+          stats.total_products += user.inventory_summary.total_products;
+          stats.users_with_inventory += user.inventory_summary.total_inventory > 0 ? 1 : 0;
+          return stats;
+        }, {
+          total_inventory_value: 0,
+          total_products: 0,
+          users_with_inventory: 0
+        });
+
+        return c.json({
+          pagination: {
+            total_users: totalUsers,
+            limit,
+            offset,
+            has_more: offset + users.length < totalUsers
+          },
+          statistics: {
+            ...statistics,
+            average_inventory_value_per_user: (statistics.total_inventory_value / users.length).toFixed(2),
+            average_products_per_user: (statistics.total_products / users.length).toFixed(2)
+          },
+          users
+        });
+
+      } catch (error) {
+        return c.json({ 
+          error: 'Failed to fetch user inventories',
+          details: error.message 
+        }, 500);
+      }
+    });
     // Add user information to the response
     const product = result.results[0];
     return c.json({
@@ -236,6 +357,134 @@ app.post('/api/products', jwtMiddleware, async (c) => {
   } catch (error) {
     return c.json({ 
       error: 'Failed to create product',
+      details: error.message 
+    }, 500);
+  }
+});
+
+// Route: Get Basic User Inventories with Product Details
+app.get('/api/users/basic-inventories', async (c) => {
+  try {
+    // First, get user summary information
+    const userSummary = await executeQuery(c, `
+      SELECT 
+        u.user_id,
+        u.username,
+        u.email,
+        u.role,
+        COUNT(DISTINCT p.product_id) as product_count,
+        SUM(p.quantity_in_stock) as total_stock,
+        SUM(p.price * p.quantity_in_stock) as total_inventory_value
+      FROM users u
+      LEFT JOIN products p ON u.user_id = p.user_id
+      GROUP BY u.user_id, u.username, u.email, u.role
+      ORDER BY total_stock DESC
+    `);
+
+    // Then, get product details for each user
+    const productDetails = await executeQuery(c, `
+      SELECT 
+        u.user_id,
+        p.product_id,
+        p.product_name,
+        p.description,
+        p.price,
+        p.quantity_in_stock,
+        p.quantity_after_sale,
+        p.category_id,
+        p.created_at as product_created_at,
+        p.updated_at as product_updated_at
+      FROM users u
+      LEFT JOIN products p ON u.user_id = p.user_id
+      WHERE p.product_id IS NOT NULL
+      ORDER BY u.user_id, p.created_at DESC
+    `);
+
+    // Create a map of products by user_id
+    const productsByUser = productDetails.results.reduce((acc, product) => {
+      if (!acc[product.user_id]) {
+        acc[product.user_id] = [];
+      }
+      acc[product.user_id].push({
+        product_id: product.product_id,
+        product_name: product.product_name,
+        description: product.description,
+        price: parseFloat(product.price),
+        quantity_in_stock: product.quantity_in_stock,
+        quantity_after_sale: product.quantity_after_sale,
+        category_id: product.category_id,
+        created_at: product.product_created_at,
+        updated_at: product.product_updated_at
+      });
+      return acc;
+    }, {});
+
+    // Combine user summary with their products
+    const users = userSummary.results.map(user => {
+      const userProducts = productsByUser[user.user_id] || [];
+      
+      // Calculate inventory statistics
+      const inventoryStats = {
+        low_stock_items: userProducts.filter(p => p.quantity_in_stock < 10).length,
+        out_of_stock_items: userProducts.filter(p => p.quantity_in_stock === 0).length,
+        average_price: userProducts.length > 0 
+          ? (userProducts.reduce((sum, p) => sum + p.price, 0) / userProducts.length).toFixed(2)
+          : 0
+      };
+
+      return {
+        user_info: {
+          user_id: user.user_id,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        },
+        inventory_summary: {
+          total_products: user.product_count,
+          total_stock: user.total_stock || 0,
+          total_value: parseFloat(user.total_inventory_value || 0).toFixed(2),
+          has_inventory: user.product_count > 0,
+          ...inventoryStats
+        },
+        products: userProducts.map(product => ({
+          ...product,
+          stock_status: product.quantity_in_stock === 0 ? 'out_of_stock' 
+            : product.quantity_in_stock < 10 ? 'low_stock' 
+            : 'in_stock',
+          value: (product.price * product.quantity_in_stock).toFixed(2)
+        }))
+      };
+    });
+
+    // Calculate overall statistics
+    const statistics = users.reduce((stats, user) => {
+      stats.total_products += user.inventory_summary.total_products;
+      stats.total_stock += user.inventory_summary.total_stock;
+      stats.total_inventory_value += parseFloat(user.inventory_summary.total_value);
+      stats.users_with_inventory += user.inventory_summary.has_inventory ? 1 : 0;
+      return stats;
+    }, {
+      total_products: 0,
+      total_stock: 0,
+      total_inventory_value: 0,
+      users_with_inventory: 0
+    });
+
+    return c.json({
+      total_users: users.length,
+      statistics: {
+        ...statistics,
+        average_products_per_user: (statistics.total_products / users.length).toFixed(2),
+        average_inventory_value: (statistics.total_inventory_value / users.length).toFixed(2)
+      },
+      users: users.sort((a, b) => 
+        parseFloat(b.inventory_summary.total_value) - parseFloat(a.inventory_summary.total_value)
+      )
+    });
+
+  } catch (error) {
+    return c.json({ 
+      error: 'Failed to fetch basic user inventories',
       details: error.message 
     }, 500);
   }
@@ -439,7 +688,7 @@ app.get('/api/locality/:locality/inventory/summary', jwtMiddleware, async (c) =>
       FROM users u
       LEFT JOIN products p ON u.user_id = p.user_id
       WHERE u.locality = ?
-      AND p.quantity > 0
+      AND p.quantity_in_stock > 0
     `, [locality]);
 
     return c.json({
@@ -538,7 +787,7 @@ app.get('/api/forecasts/:city/top-changes/analytics', async (c) => {
   try {
     const city_name = c.req.param('city');
 
-    // Get top 3 changes
+    // Get top 3 unique products with highest percentage changes
     const topChanges = await executeQuery(c, `
       SELECT 
         city_name,
@@ -547,14 +796,15 @@ app.get('/api/forecasts/:city/top-changes/analytics', async (c) => {
         percentage_change
       FROM forecasts 
       WHERE city_name = ?
-      ORDER BY percentage_change DESC
+      GROUP BY product_name
+      ORDER BY MAX(percentage_change) DESC
       LIMIT 3
     `, [city_name]);
 
     // Get statistics
     const stats = await executeQuery(c, `
       SELECT 
-        COUNT(*) as total_products,
+        COUNT(DISTINCT product_name) as total_products,
         AVG(percentage_change) as avg_change,
         MIN(percentage_change) as min_change,
         MAX(percentage_change) as max_change,
