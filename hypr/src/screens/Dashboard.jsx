@@ -9,7 +9,7 @@ import Background from "../components/Background";
 const Dashboard = () => {
   return (
     <div className="h-screen bg-[#081317]">
-      {/* <Stats /> */}
+      <Stats />
 
       <div className="p-4">
         <ProductsTable />
