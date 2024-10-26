@@ -5,8 +5,8 @@ import PiChart from "../charts/PiChart";
 const StatsScreen = () => {
   return (
     <div className="h-screen ">
-      <PiChart />
       <LineChart />
+      <PiChart />
     </div>
   );
 };
