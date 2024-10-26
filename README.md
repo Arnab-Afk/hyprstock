@@ -1,5 +1,5 @@
 ```
-npm install
+bun install
 npm run dev
 ```
 
