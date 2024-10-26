@@ -81,8 +81,8 @@ export default function Stats() {
                   <p className="text-sm font-medium leading-6 text-gray-400">
                     {change.product_name}
                   </p>
-                  <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
-                    {change.percentage_change}%
+                  <p className="mt-2 text-4xl font-semibold tracking-tight text-green-400">
+                    {change.percentage_change / 1000}%
                   </p>
                 </div>
               ))}

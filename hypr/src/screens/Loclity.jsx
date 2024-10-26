@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LogoSquare from "../assets/LogoSquare.png";
 
 export default function Locality() {
   const [locality, setLocality] = useState("");
@@ -48,8 +49,8 @@ export default function Locality() {
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="Your Company"
-            src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-            className="mx-auto h-10 w-auto"
+            src={LogoSquare}
+            className="mx-auto h-28 w-auto"
           />
         </div>
 
