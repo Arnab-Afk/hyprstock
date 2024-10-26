@@ -20,6 +20,8 @@ export default function Protected() {
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      setUserData(null);
     }
   }, []);
 
