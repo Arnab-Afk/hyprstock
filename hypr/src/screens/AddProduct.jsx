@@ -30,6 +30,7 @@ export default function AddProduct() {
       });
 
       if (!response.ok) {
+        navigate("/dashboard");
         throw new Error("Network response was not ok");
       }
 
