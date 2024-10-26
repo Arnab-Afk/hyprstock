@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Signin from "./screens/signin";
 import Callback from "./components/callback";
 import Locality from "./screens/Loclity";
@@ -7,20 +12,6 @@ import AddProduct from "./screens/AddProduct";
 import MapsScreen from "./screens/MapsScreen"
 export default function App() {
   // Initialize user data
-  let isUserCompleted = false;
-  const userData = localStorage.getItem("user");
-  
-  // Check if userData exists and parse it
-  if (userData) {
-    try {
-      const user = JSON.parse(userData);
-      // Set isUserCompleted based on locality check
-      isUserCompleted = user.locality === null;
-    } catch (error) {
-      console.error("Error parsing user data:", error);
-    }
-  }
-
   return (
     <Router>
       <Routes>
@@ -43,5 +34,5 @@ export default function App() {
         <Route path="*" element={<h1>404 Page Not Found</h1>} />
       </Routes>
     </Router>
-  )
+  );
 }
