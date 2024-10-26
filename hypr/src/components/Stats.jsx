@@ -25,51 +25,64 @@ export default function Stats() {
     }
   }, [locality, token]);
 
-  const stats = analyticsData
-    ? [
-        {
-          name: "Total Products",
-          value: analyticsData.analytics.total_products,
-        },
-        {
-          name: "Average Change",
-          value: `${analyticsData.analytics.average_change}%`,
-        },
-        {
-          name: "Total Predicted Orders",
-          value: analyticsData.analytics.total_predicted_orders,
-        },
-        {
-          name: "Volatility",
-          value: analyticsData.analytics.insights.volatility,
-        },
-      ]
-    : [];
-
   return (
-    <div className="bg-gray-900">
+    <div>
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4"></div>
+        {/* <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {analyticsData && (
+            <>
+              <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+                <p className="text-sm font-medium leading-6 text-gray-400">
+                  Total Products
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
+                  {analyticsData.analytics.total_products}
+                </p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+                <p className="text-sm font-medium leading-6 text-gray-400">
+                  Average Change
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
+                  {analyticsData.analytics.average_change}%
+                </p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+                <p className="text-sm font-medium leading-6 text-gray-400">
+                  Total Predicted Orders
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
+                  {analyticsData.analytics.total_predicted_orders}
+                </p>
+              </div>
+              <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+                <p className="text-sm font-medium leading-6 text-gray-400">
+                  Volatility
+                </p>
+                <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
+                  {analyticsData.analytics.insights.volatility}
+                </p>
+              </div>
+            </>
+          )}
+        </div> */}
 
-        {/* Top Changes Section */}
         {analyticsData && analyticsData.top_changes && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-white mb-4">
               Top Changes
             </h2>
-            <div className="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {analyticsData.top_changes.map((change, index) => (
                 <div
                   key={index}
-                  className="bg-gray-900 px-4 py-6 sm:px-6 lg:px-8"
+                  className="bg-gray-800 p-4 rounded-lg shadow-md"
                 >
                   <p className="text-sm font-medium leading-6 text-gray-400">
                     {change.product_name}
                   </p>
-                  <p className="mt-2 flex items-baseline gap-x-2">
-                    <span className="text-4xl font-semibold tracking-tight text-white">
-                      {change.percentage_change}%
-                    </span>
+                  <p className="mt-2 text-4xl font-semibold tracking-tight text-white">
+                    {change.percentage_change}%
                   </p>
                 </div>
               ))}

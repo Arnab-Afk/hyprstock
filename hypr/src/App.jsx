@@ -10,7 +10,7 @@ import Locality from "./screens/Loclity";
 import Dashboard from "./screens/Dashboard";
 import AddProduct from "./screens/AddProduct";
 import MapsScreen from "./screens/MapsScreen";
-import Stats from "./screens/Stats";
+import Stats from "./screens/Statistics.jsx";
 
 import Protected from "./layouts/Protected";
 import SidebarLayout from "./layouts/SidebarLayout";
