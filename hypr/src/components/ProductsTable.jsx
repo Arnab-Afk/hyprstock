@@ -130,13 +130,22 @@ export default function ProductsTable() {
                   price, and stock status.
                 </p>
               </div>
-              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex space-x-4">
                 <button
                   type="button"
                   onClick={() => navigate("/addProduct")}
                   className="block rounded-md bg-indigo-500 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
                   Add product
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    alert("Import Excel functionality to be implemented")
+                  }
+                  className="block rounded-md bg-green-500 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+                >
+                  Import Excel
                 </button>
               </div>
             </div>
@@ -220,7 +229,11 @@ export default function ProductsTable() {
                         </div>
                       ) : (
                         <span
-                          className={`${product.quantity_in_stock === 0 ? "text-red-400" : "text-gray-300"}`}
+                          className={`${
+                            product.quantity_in_stock === 0
+                              ? "text-red-400"
+                              : "text-gray-300"
+                          }`}
                         >
                           {product.quantity_in_stock} in stock
                         </span>
