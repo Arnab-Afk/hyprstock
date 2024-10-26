@@ -4,6 +4,7 @@ import Callback from "./components/callback";
 import Locality from "./screens/Loclity";
 import Dashboard from "./screens/Dashboard";
 import AddProduct from "./screens/AddProduct";
+import MapsScreen from "./screens/MapsScreen"
 export default function App() {
   // Initialize user data
   let isUserCompleted = false;
@@ -34,6 +35,7 @@ export default function App() {
           } 
         />
         <Route path="locality" element={<Locality/>} />
+        <Route path="/maps" element={<MapsScreen/>} />
         <Route path="/addProduct" element={<AddProduct/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/profile" element={<h1>Profile Page</h1>} />
