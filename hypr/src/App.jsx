@@ -13,6 +13,7 @@ import MapsScreen from "./screens/MapsScreen";
 import Stats from "./screens/Stats";
 
 import Protected from "./layouts/Protected";
+import SidebarLayout from "./layouts/SidebarLayout";
 
 export default function App() {
   // Initialize user data
@@ -20,14 +21,16 @@ export default function App() {
     <Router>
       <Routes>
         <Route element={<Protected />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/addProduct" element={<AddProduct />} />
-          <Route path="/locality" element={<Locality />} />
-          <Route path="/profile" element={<h1>Profile Page</h1>} />
-          <Route path="/settings" element={<h1>Settings Page</h1>} />
-          <Route path="/dashboard" element={<Navigate to="/" />} />
-          <Route path="/maps" element={<MapsScreen />} />
-          <Route path="/stats" element={<Stats />} />
+          <Route element={<SidebarLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/addProduct" element={<AddProduct />} />
+            <Route path="/locality" element={<Locality />} />
+            <Route path="/profile" element={<h1>Profile Page</h1>} />
+            <Route path="/settings" element={<h1>Settings Page</h1>} />
+            <Route path="/dashboard" element={<Navigate to="/" />} />
+            <Route path="/maps" element={<MapsScreen />} />
+            <Route path="/stats" element={<Stats />} />
+          </Route>
         </Route>
         <Route path="/signin" element={<Signin />} />
         <Route path="/callback" element={<Callback />} />

@@ -5,7 +5,7 @@ import { SparklesCore } from "./BackgroundSrc";
 export default function SparklesPreview() {
   return (
     <div className="flex justify-center">
-      <div className="w-screen h-screen relative">
+      <div className="w-screen h-screen relative ">
         {/* Gradients */}
         <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
         <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-3/4" />
