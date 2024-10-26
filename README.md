@@ -1,5 +1,5 @@
 ```
-bun install
+bun instal
 bun run dev
 ```
 
