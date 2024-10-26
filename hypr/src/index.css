@@ -5,11 +5,11 @@
 @layer base {
     @media (prefers-color-scheme: light) {
         :root {
-            --color-foreground: 12 25 34;
-            --color-background: 232 243 247;
-            --color-primary: 39 84 109;
-            --color-secondary: 128 133 209;
-            --color-accent: 70 57 157;
+            --color-foreground: 222 235 243;
+            --color-background: 8 9 23;
+            --color-primary: 146 192 216;
+            --color-secondary: 45 51 126;
+            --color-accent: 110 97 198;
         }
     }
     @media (prefers-color-scheme: dark) {
